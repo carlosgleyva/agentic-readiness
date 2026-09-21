@@ -1,168 +1,582 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agentic AI Architectural Readiness Index (AIRI)</title>
+  <title>Enterprise Agentic AI Readiness Assessment</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f9ff', 500: '#0284c7', 600: '#0369a1', 900: '#0c4a6e' },
+            slate: { 850: '#0f172a', 900: '#0b1120', 950: '#070a13' }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .card-border { border: 1px solid #30363d; background: #161b22; }
-    .accent-blue { color: #58a6ff; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #070a13; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .option-card:hover { border-color: #38bdf8; background: rgba(30, 41, 59, 0.85); transform: translateY(-2px); }
+    .option-card.selected { border-color: #38bdf8; background: rgba(14, 165, 233, 0.12); box-shadow: 0 0 25px rgba(56, 189, 248, 0.15); }
+    .fade-step { animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="p-6 md:p-12 max-w-4xl mx-auto">
-  <header class="mb-10 text-center md:text-left">
-    <div class="inline-block px-3 py-1 mb-3 text-xs font-mono font-medium rounded-full bg-blue-900/40 text-blue-400 border border-blue-700/50">
-      Enterprise Architecture Benchmark
+<body class="min-h-screen text-slate-100 flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="w-full border-b border-slate-800/80 bg-slate-950/60 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></div>
+        <span class="mono text-xs tracking-wider uppercase text-slate-400">Enterprise Systems Diagnostic</span>
+      </div>
+      <a href="../" class="text-xs mono text-slate-400 hover:text-sky-400 transition-colors">
+        Arquitectura & Portfolio →
+      </a>
     </div>
-    <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Agentic AI Readiness Index</h1>
-    <p class="mt-2 text-sm text-gray-400">
-      Evaluación agnóstica de infraestructura, orquestación de herramientas y observabilidad para sistemas agénticos en producción.
-    </p>
   </header>
 
-  <form id="assessmentForm" class="space-y-8">
-    <!-- Pilar 1 -->
-    <div class="card-border rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-white mb-2">1. Madurez de APIs e Idempotencia (Tool Calling)</h3>
-      <p class="text-xs text-gray-400 mb-4">¿Cómo interactuará el agente con tus sistemas de registro y microservicios?</p>
-      <div class="space-y-3 text-sm">
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q1" value="5" class="mt-1" required>
-          <span>Sistemas heredados sin APIs REST estándar; pantallas legadas o extracción de datos no estructurada.</span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q1" value="15">
-          <span>APIs REST disponibles pero sin validación estricta de esquemas ni garantías de idempotencia ante reintentos.</span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q1" value="25">
-          <span>Microservicios con OpenAPI/JSON Schema estrictos, endpoints idempotentes y rate-limiting controlado.</span>
-        </label>
+  <!-- Main Container -->
+  <main class="max-w-3xl w-full mx-auto px-6 py-10 flex-1 flex flex-col justify-center">
+
+    <!-- Progress Bar -->
+    <div id="progressContainer" class="mb-8">
+      <div class="flex justify-between items-center text-xs mono text-slate-400 mb-2">
+        <span id="stepIndicator">Pilar 1 de 4</span>
+        <span id="percentIndicator">25% completado</span>
+      </div>
+      <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-sky-500 to-indigo-500 transition-all duration-500 w-1/4"></div>
       </div>
     </div>
 
-    <!-- Pilar 2 -->
-    <div class="card-border rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-white mb-2">2. Topología de Control y Orquestación</h3>
-      <p class="text-xs text-gray-400 mb-4">¿Cuál es el mecanismo que delimita la autonomía de ejecución del agente?</p>
-      <div class="space-y-3 text-sm">
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q2" value="5" class="mt-1" required>
-          <span>Bucle abierto (Open loop): El modelo decide libremente cuándo terminar y qué herramientas invocar.</span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q2" value="15">
-          <span>Árboles de decisión secuenciales simples con verificación básica de formato post-ejecución.</span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q2" value="25">
-          <span>Grafos Acíclicos Dirigidos (DAGs) o Máquinas de Estado Finito con nodos de validación y fallbacks deterministas.</span>
-        </label>
-      </div>
-    </div>
+    <!-- Wizard Steps Wrapper -->
+    <div class="relative">
 
-    <!-- Pilar 3 -->
-    <div class="card-border rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-white mb-2">3. Presupuesto de Latencia y Experiencia de Usuario</h3>
-      <p class="text-xs text-gray-400 mb-4">¿Cómo encaja el ciclo de inferencia + ejecución de herramientas en tus canales?</p>
-      <div class="space-y-3 text-sm">
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q3" value="5" class="mt-1" required>
-          <span>Canales síncronos de alta exigencia (voz, chat reactivo) sin arquitectura de streaming ni feedback intermedio.</span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q3" value="15">
-          <span>Arquitectura orientada a streaming en interfaces web, pero con cuellos de botella en APIs de terceros (>3s p95).</span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q3" value="25">
-          <span>Modelos híbridos: ejecución asíncrona para tareas multi-salto y streaming reactivo optimizado (<1.5s TTFT).</span>
-        </label>
-      </div>
-    </div>
+      <!-- STEP 1: API Maturity -->
+      <div id="step1" class="fade-step">
+        <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 01 // Integración</span>
+        <h2 class="text-2xl sm:text-3xl font-bold mt-2 mb-3 text-white">Madurez de APIs e Idempotencia (Tool Calling)</h2>
+        <p class="text-sm text-slate-400 mb-8 leading-relaxed">
+          Los agentes no fallan en la inferencia; fallan en la ejecución. ¿Cómo toleran tus sistemas de registro las llamadas concurrentes y reintentos automatizados?
+        </p>
 
-    <!-- Pilar 4 -->
-    <div class="card-border rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-white mb-2">4. Observabilidad, Context Drift y Seguridad (IAM)</h3>
-      <p class="text-xs text-gray-400 mb-4">¿Cómo detectas fallos en la cadena de razonamiento y fugas de datos?</p>
-      <div class="space-y-3 text-sm">
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q4" value="5" class="mt-1" required>
-          <span>Monitoreo tradicional a nivel servidor; el contenido del prompt y la respuesta del modelo son una caja negra.</span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q4" value="15">
-          <span>Registro de prompts y consumo de tokens centralizado, pero sin trazabilidad de transiciones entre herramientas.</span>
-        </label>
-        <label class="flex items-start gap-3 cursor-pointer">
-          <input type="radio" name="q4" value="25">
-          <span>Telemetría por salto (hop tracing), detección activa de context drift, RBAC contextual e inyección segura de secretos.</span>
-        </label>
-      </div>
-    </div>
+        <div class="space-y-4">
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(1, 5, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">A</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Sistemas monolíticos o interfaces legadas</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Sin APIs REST documentadas; extracción vía scraping, pantallas propietarias o servicios sin tolerancia a concurrencia.</p>
+              </div>
+            </div>
+          </div>
 
-    <button type="button" onclick="calculateReadiness()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 font-semibold text-white rounded-lg transition-colors">
-      Calcular Índice de Madurez Arquitectónica
-    </button>
-  </form>
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(1, 15, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">B</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">APIs REST estándar sin garantías de idempotencia</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Endpoints funcionales para usuarios humanos, pero sin validación estricta de esquemas ni llaves de idempotencia ante reintentos de red.</p>
+              </div>
+            </div>
+          </div>
 
-  <!-- Resultado Dinámico -->
-  <div id="resultContainer" class="hidden mt-10 card-border rounded-lg p-8">
-    <div class="flex items-center justify-between border-b border-gray-700 pb-4 mb-4">
-      <div>
-        <span class="text-xs font-mono uppercase text-gray-400 tracking-wider">Resultado Diagnóstico</span>
-        <h2 id="resultLevel" class="text-2xl font-bold text-white mt-1"></h2>
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(1, 25, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">C</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Microservicios estrictos con OpenAPI / JSON Schema</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Contratos de datos tipados, control de tasa (rate-limiting) por agente y endpoints 100% transaccionales e idempotentes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="text-right">
-        <span id="resultScore" class="text-4xl font-extrabold text-blue-400"></span>
-        <span class="text-gray-500 text-lg">/100</span>
+
+      <!-- STEP 2: Control Topology -->
+      <div id="step2" class="fade-step hidden">
+        <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 02 // Orquestación</span>
+        <h2 class="text-2xl sm:text-3xl font-bold mt-2 mb-3 text-white">Topología de Control y Máquinas de Estado</h2>
+        <p class="text-sm text-slate-400 mb-8 leading-relaxed">
+          En producción corporativa, la autonomía sin restricciones es una vulnerabilidad operativa. ¿Cómo delimitas el espacio de decisión del modelo?
+        </p>
+
+        <div class="space-y-4">
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(2, 5, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">A</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Bucle Abierto No Determinista (Open Loop)</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Se le otorga un prompt general y acceso a herramientas; el modelo decide autónomamente cuántas veces iterar y cuándo detenerse.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(2, 15, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">B</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Cadenas secuenciales con límites de iteración</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Flujos lineales (Chain-of-Thought) con un número fijo de llamadas permitidas, pero sin capacidad de auto-recuperación ni bifurcación.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(2, 25, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">C</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Grafos Dirigidos (DAGs) y Máquinas de Estados Finitos</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Nodos de decisión delimitados, validación semántica en cada transición y desvío forzado hacia código determinista o escalamiento humano.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- STEP 3: Latency & UX -->
+      <div id="step3" class="fade-step hidden">
+        <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 03 // Runtime & SLA</span>
+        <h2 class="text-2xl sm:text-3xl font-bold mt-2 mb-3 text-white">Presupuesto de Latencia y Experiencia de Usuario</h2>
+        <p class="text-sm text-slate-400 mb-8 leading-relaxed">
+          Cada salto agéntico suma inferencia y latencia de red. ¿Cómo interactúa el sistema con los canales de cara al usuario final?
+        </p>
+
+        <div class="space-y-4">
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(3, 5, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">A</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Canales síncronos sin feedback intermedio</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Interfaces donde el usuario experimenta pantallas de carga o silencios mayores a 4 segundos mientras se resuelven las llamadas.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(3, 15, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">B</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Streaming básico con cuellos de botella en herramientas</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Streaming de tokens en texto, pero la ejecución de APIs bloquea el renderizado y genera pausas perceptibles en la interacción.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(3, 25, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">C</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Arquitectura reactiva desacoplada (TTFT &lt; 1.2s)</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Ejecución especulativa de herramientas, mensajería asíncrona, streaming de estados intermedios y presupuesto estricto de latencia p99.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Observability & Security -->
+      <div id="step4" class="fade-step hidden">
+        <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 04 // Gobierno & Telemetría</span>
+        <h2 class="text-2xl sm:text-3xl font-bold mt-2 mb-3 text-white">Observabilidad de Salto, Context Drift y Seguridad</h2>
+        <p class="text-sm text-slate-400 mb-8 leading-relaxed">
+          En sistemas multi-paso, los errores se acumulan de forma invisible. ¿Cómo auditas y aseguras la cadena de razonamiento?
+        </p>
+
+        <div class="space-y-4">
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(4, 5, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">A</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Caja negra tradicional</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Logs clásicos a nivel servidor HTTP; no hay visibilidad sobre prompts intermedios, tokens utilizados ni desviaciones semánticas.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(4, 15, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">B</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Registro centralizado de prompts y costo</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Métricas agregadas de consumo por LLM y registro de entradas/salidas, pero sin trazabilidad del grafo ni evaluación por paso.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="option-card glass-card p-5 rounded-xl cursor-pointer transition-all border border-slate-800" onclick="selectOption(4, 25, this)">
+            <div class="flex items-start gap-4">
+              <span class="mono text-sm font-bold text-slate-500 mt-0.5">C</span>
+              <div>
+                <h4 class="font-semibold text-white text-base">Telemetría por salto (Hop Tracing) y RBAC de Contexto</h4>
+                <p class="text-xs text-slate-400 mt-1 leading-relaxed">Trazabilidad distribuida con OpenTelemetry, mitigación de context drift, inyección efímera de secretos y control de acceso estricto por herramienta.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Lead Capture Gate -->
+      <div id="step5" class="fade-step hidden">
+        <div class="text-center max-w-lg mx-auto mb-8">
+          <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center mx-auto mb-4 mono text-xl font-bold">
+            ✓
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white">Diagnóstico Arquitectónico Completado</h2>
+          <p class="text-sm text-slate-400 mt-2">
+            Ingresa tus datos corporativos para compilar el dictamen técnico y generar tu reporte ejecutivo en formato PDF.
+          </p>
+        </div>
+
+        <form id="leadForm" onsubmit="generateFinalReport(event)" class="glass-card p-8 rounded-2xl border border-slate-800 space-y-5 max-w-lg mx-auto">
+          <div>
+            <label class="block text-xs mono uppercase text-slate-400 mb-2">Nombre Completo</label>
+            <input type="text" id="leadName" required placeholder="Ej. Roberto Morales" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 transition-colors">
+          </div>
+          <div>
+            <label class="block text-xs mono uppercase text-slate-400 mb-2">Rol / Posición Técnica</label>
+            <input type="text" id="leadRole" required placeholder="Ej. VP of Engineering / Solutions Architect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 transition-colors">
+          </div>
+          <div>
+            <label class="block text-xs mono uppercase text-slate-400 mb-2">Empresa / Organización</label>
+            <input type="text" id="leadCompany" required placeholder="Ej. Grupo Financiero / Retail Corp" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 transition-colors">
+          </div>
+          <div>
+            <label class="block text-xs mono uppercase text-slate-400 mb-2">Correo Electrónico Corporativo</label>
+            <input type="email" id="leadEmail" required placeholder="tu.nombre@empresa.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-sky-500 transition-colors">
+          </div>
+          
+          <button type="submit" id="btnSubmitForm" class="w-full py-4 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-sky-500/20 mt-2">
+            Generar Dictamen & Descargar PDF →
+          </button>
+        </form>
+      </div>
+
+      <!-- STEP 6: Dashboard Result -->
+      <div id="step6" class="fade-step hidden">
+        <div class="glass-card rounded-2xl p-8 border border-slate-800 mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div>
+              <span class="mono text-xs uppercase text-slate-400">Dictamen de Ingeniería</span>
+              <h2 id="screenLevelTitle" class="text-2xl font-bold mt-1 text-white"></h2>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span id="screenScore" class="text-5xl font-extrabold text-sky-400"></span>
+              <span class="text-slate-500 mono text-lg">/100</span>
+            </div>
+          </div>
+
+          <div class="py-6">
+            <h4 class="text-xs mono uppercase text-slate-400 mb-3 tracking-wider">Evaluación Ejecutiva</h4>
+            <p id="screenAnalysis" class="text-sm text-slate-300 leading-relaxed"></p>
+          </div>
+
+          <!-- Breakdown Bars -->
+          <div class="space-y-3 pt-4 border-t border-slate-800 text-xs mono">
+            <div>
+              <div class="flex justify-between mb-1 text-slate-400">
+                <span>1. Contratos de API & Idempotencia</span>
+                <span id="barVal1">0/25</span>
+              </div>
+              <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div id="barFill1" class="h-full bg-sky-400 transition-all duration-700"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1 text-slate-400">
+                <span>2. Topología de Grafos & DAGs</span>
+                <span id="barVal2">0/25</span>
+              </div>
+              <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div id="barFill2" class="h-full bg-indigo-400 transition-all duration-700"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1 text-slate-400">
+                <span>3. Presupuesto de Latencia & SLAs</span>
+                <span id="barVal3">0/25</span>
+              </div>
+              <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div id="barFill3" class="h-full bg-cyan-400 transition-all duration-700"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1 text-slate-400">
+                <span>4. Telemetría de Salto & Context Drift</span>
+                <span id="barVal4">0/25</span>
+              </div>
+              <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div id="barFill4" class="h-full bg-emerald-400 transition-all duration-700"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row gap-4 justify-between items-center">
+            <button onclick="downloadPDFAgain()" class="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs mono border border-slate-700 flex items-center justify-center gap-2 transition-colors">
+              <span>Descargar Reporte PDF de nuevo</span>
+            </button>
+            <a href="../" class="text-xs mono text-sky-400 hover:underline">
+              Explorar Portafolio de Sistemas & Arquitectura →
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
-    <p id="resultAnalysis" class="text-sm text-gray-300 leading-relaxed mb-6"></p>
-    <div class="border-t border-gray-800 pt-4 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 gap-4">
-      <span>Framework diseñado por <strong>Carlos Antonio González Leyva</strong></span>
-      <a href="../" class="text-blue-400 hover:underline">Ver Portafolio de Sistemas & Arquitectura →</a>
+  </main>
+
+  <!-- HIDDEN TEMPLATE: Printable PDF Structure -->
+  <div id="pdfPrintableTemplate" class="hidden">
+    <div style="font-family: Arial, sans-serif; color: #1e293b; padding: 40px; max-width: 800px; background: #ffffff;">
+      <!-- PDF Header -->
+      <div style="border-bottom: 2px solid #0284c7; padding-bottom: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+          <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #0284c7;">Enterprise Systems Architecture</span>
+          <h1 style="font-size: 22px; font-weight: bold; margin: 4px 0 0 0; color: #0f172a;">Agentic AI Architectural Readiness Index (AIRI)</h1>
+          <p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Dictamen de Ingeniería para Despliegue de Sistemas Autónomos en Producción</p>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 9px; color: #94a3b8; display: block;">Framework Autor</span>
+          <strong style="font-size: 11px; color: #0f172a;">Carlos Antonio González Leyva</strong>
+        </div>
+      </div>
+
+      <!-- Metadata Box -->
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; font-size: 10px;">
+        <div><strong>Evaluado para:</strong> <span id="pdfName"></span></div>
+        <div><strong>Rol:</strong> <span id="pdfRole"></span></div>
+        <div><strong>Empresa:</strong> <span id="pdfCompany"></span></div>
+        <div><strong>Fecha:</strong> <span id="pdfDate"></span></div>
+      </div>
+
+      <!-- Score Box -->
+      <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 15px; margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="font-size: 10px; text-transform: uppercase; font-weight: bold; color: #0369a1;">Nivel de Preparación Arquitectónica</span>
+            <h2 id="pdfLevelTitle" style="font-size: 18px; font-weight: bold; color: #0f172a; margin: 3px 0 0 0;"></h2>
+          </div>
+          <div style="text-align: right;">
+            <span id="pdfScore" style="font-size: 32px; font-weight: bold; color: #0284c7;"></span>
+            <span style="font-size: 13px; color: #64748b;">/100</span>
+          </div>
+        </div>
+        <p id="pdfExecutiveSummary" style="font-size: 11px; line-height: 1.5; color: #334155; margin-top: 12px; border-top: 1px solid #e0f2fe; padding-top: 12px;"></p>
+      </div>
+
+      <!-- Detailed Breakdown -->
+      <h3 style="font-size: 12px; font-weight: bold; color: #0f172a; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+        1. Desglose por Dimensión de Ingeniería
+      </h3>
+      <table style="width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 25px;">
+        <tr style="background: #f1f5f9; text-align: left;">
+          <th style="padding: 8px; border: 1px solid #cbd5e1;">Pilar de Arquitectura</th>
+          <th style="padding: 8px; border: 1px solid #cbd5e1; width: 70px; text-align: center;">Puntaje</th>
+          <th style="padding: 8px; border: 1px solid #cbd5e1;">Observación Técnica</th>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Contratos de API & Tool Idempotency</td>
+          <td id="pdfP1Score" style="padding: 8px; border: 1px solid #e2e8f0; text-align: center; font-weight: bold;"></td>
+          <td id="pdfP1Note" style="padding: 8px; border: 1px solid #e2e8f0; color: #475569;"></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Topología de Control & DAGs</td>
+          <td id="pdfP2Score" style="padding: 8px; border: 1px solid #e2e8f0; text-align: center; font-weight: bold;"></td>
+          <td id="pdfP2Note" style="padding: 8px; border: 1px solid #e2e8f0; color: #475569;"></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Presupuesto de Latencia & SLAs</td>
+          <td id="pdfP3Score" style="padding: 8px; border: 1px solid #e2e8f0; text-align: center; font-weight: bold;"></td>
+          <td id="pdfP3Note" style="padding: 8px; border: 1px solid #e2e8f0; color: #475569;"></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #e2e8f0; font-weight: bold;">Telemetría de Salto & Context Drift</td>
+          <td id="pdfP4Score" style="padding: 8px; border: 1px solid #e2e8f0; text-align: center; font-weight: bold;"></td>
+          <td id="pdfP4Note" style="padding: 8px; border: 1px solid #e2e8f0; color: #475569;"></td>
+        </tr>
+      </table>
+
+      <!-- Recommendations -->
+      <h3 style="font-size: 12px; font-weight: bold; color: #0f172a; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+        2. Arquitecturas de Referencia & Próximos Pasos Recomendados
+      </h3>
+      <ul style="font-size: 10px; line-height: 1.6; color: #334155; padding-left: 18px; margin-bottom: 25px;">
+        <li><strong>Orquestación Basada en Grafos:</strong> Migrar bucles abiertos hacia máquinas de estados finitos utilizando frameworks agnósticos (LangGraph, Temporal.io o Google Cloud Vertex AI Extensions).</li>
+        <li><strong>Gobernanza de APIs:</strong> Desplegar una capa de API Gateway con validación estricta de OpenAPI 3.1 para asegurar que las llamadas generadas por LLMs respeten formatos tipados.</li>
+        <li><strong>Observabilidad por Salto:</strong> Instrumentar OpenTelemetry para trazabilidad distribuida de cada paso agéntico (Token consumption, Tool latency, Context window compression).</li>
+        <li><strong>Control de Latencia Perceptual:</strong> Implementar streaming asíncrono y ejecución especulativa de herramientas para mantener el TTFT (Time-to-First-Token) por debajo de 1.2s en canales interactivos.</li>
+      </ul>
+
+      <!-- Footer -->
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 9px; color: #94a3b8; display: flex; justify-content: space-between;">
+        <span>Desarrollado por Carlos Antonio González Leyva | Soluciones Empresariales & Arquitectura</span>
+        <span>carlosgleyva.github.io/portfolio/</span>
+      </div>
     </div>
   </div>
 
-  <script>
-    function calculateReadiness() {
-      const q1 = document.querySelector('input[name="q1"]:checked');
-      const q2 = document.querySelector('input[name="q2"]:checked');
-      const q3 = document.querySelector('input[name="q3"]:checked');
-      const q4 = document.querySelector('input[name="q4"]:checked');
+  <!-- Footer -->
+  <footer class="w-full border-t border-slate-900 bg-slate-950 py-6 text-center text-xs mono text-slate-500">
+    Enterprise Architecture Framework © 2026 // Diseñado por Carlos Antonio González Leyva
+  </footer>
 
-      if (!q1 || !q2 || !q3 || !q4) {
-        alert("Por favor responde los 4 pilares arquitectónicos para calcular el índice.");
-        return;
+  <script>
+    let currentStep = 1;
+    const scores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    let userInfo = {};
+
+    function selectOption(step, value, element) {
+      scores[step] = value;
+      const parent = element.parentElement;
+      parent.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+
+      setTimeout(() => {
+        goToStep(step + 1);
+      }, 250);
+    }
+
+    function goToStep(step) {
+      const currentEl = document.getElementById(`step${currentStep}`);
+      if (currentEl) currentEl.classList.add('hidden');
+
+      currentStep = step;
+
+      const nextEl = document.getElementById(`step${currentStep}`);
+      if (nextEl) nextEl.classList.remove('hidden');
+
+      if (currentStep <= 4) {
+        document.getElementById('stepIndicator').innerText = `Pilar ${currentStep} de 4`;
+        document.getElementById('percentIndicator').innerText = `${currentStep * 25}% completado`;
+        document.getElementById('progressBar').style.width = `${currentStep * 25}%`;
+      } else {
+        document.getElementById('progressContainer').classList.add('hidden');
       }
 
-      const total = parseInt(q1.value) + parseInt(q2.value) + parseInt(q3.value) + parseInt(q4.value);
-      const container = document.getElementById("resultContainer");
-      const scoreEl = document.getElementById("resultScore");
-      const levelEl = document.getElementById("resultLevel");
-      const analysisEl = document.getElementById("resultAnalysis");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-      scoreEl.innerText = total;
-      container.classList.remove("hidden");
+    function generateFinalReport(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('btnSubmitForm');
+      btn.innerText = "Compilando dictamen...";
+      btn.disabled = true;
+
+      userInfo = {
+        name: document.getElementById('leadName').value,
+        role: document.getElementById('leadRole').value,
+        company: document.getElementById('leadCompany').value,
+        email: document.getElementById('leadEmail').value,
+        date: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+      };
+
+      const total = scores[1] + scores[2] + scores[3] + scores[4];
+
+      let levelTitle = "";
+      let summary = "";
+      let colorClass = "";
 
       if (total <= 40) {
-        levelEl.innerText = "Nivel 1: Zona de Alto Riesgo Productivo";
-        levelEl.className = "text-2xl font-bold text-red-400 mt-1";
-        analysisEl.innerText = "Tu arquitectura actual corre peligro de sufrir degradación por latencia, alucinaciones en cascada y fractura de sistemas legados. Desplegar agentes autónomos en este estado multiplicará costos de inferencia sin garantizar resultados de negocio. La prioridad debe ser sanear contratos de API y diseñar un grafo de control determinista antes de delegar autonomía.";
+        levelTitle = "Fase 1: Zona de Alto Riesgo Productivo";
+        summary = "Tu infraestructura actual presenta cuellos de botella severos en la rigidez de APIs y carece de límites deterministas. Desplegar agentes autónomos en este estado provocará costos impredecibles por consumo de tokens, fallas por alucinación en cascada y una degradación crítica de la experiencia de usuario. La prioridad estratégica debe centrarse en la modernización de contratos de integración antes de delegar autonomía al modelo.";
+        colorClass = "text-rose-400";
       } else if (total <= 70) {
-        levelEl.innerText = "Nivel 2: Madurez Híbrida / Transicional";
-        levelEl.className = "text-2xl font-bold text-yellow-400 mt-1";
-        analysisEl.innerText = "Cuentas con bases de integración aceptables, pero persisten puntos de fricción en la observabilidad por salto o en la tolerancia a latencia del canal. Se recomienda limitar los agentes a flujos de trabajo asistidos con humanos en el bucle (Human-in-the-Loop) mientras se estandariza el manejo de contexto y esquemas OpenAPI estrictos.";
+        levelTitle = "Fase 2: Arquitectura Transicional / Asistida";
+        summary = "Tu organización cuenta con bases técnicas sólidas pero mantiene vulnerabilidades en observabilidad por salto o en la tolerancia a latencia del canal interactivo. Se recomienda acotar los sistemas agénticos a arquitecturas Human-in-the-Loop y flujos controlados por grafos finitos mientras se robustece la telemetría distribuida y la idempotencia en microservicios.";
+        colorClass = "text-amber-400";
       } else {
-        levelEl.innerText = "Nivel 3: Arquitectura Lista para Sistemas Agénticos";
-        levelEl.className = "text-2xl font-bold text-emerald-400 mt-1";
-        analysisEl.innerText = "Tu entorno posee las condiciones de ingeniería para ejecutar agentes autónomos basados en DAGs y orquestación multi-herramienta a escala. Cuentas con esquemas estrictos, gobernanza de latencia y telemetría granular para mitigar el context drift sin comprometer la estabilidad empresarial.";
+        levelTitle = "Fase 3: Arquitectura Lista para Sistemas Agénticos a Escala";
+        summary = "Tu entorno posee las condiciones de ingeniería indispensables para sostener bucles agénticos autónomos basados en DAGs. Con contratos de API estrictos, presupuesto de latencia controlado y telemetría por salto, tu arquitectura está capacitada para orquestar herramientas complejas en tiempo real mitigando el context drift y preservando el gobierno de datos corporativo.";
+        colorClass = "text-emerald-400";
       }
 
-      container.scrollIntoView({ behavior: 'smooth' });
+      // Webhook Apps Script
+      const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwuehH0HLM3gFZHbHDtLywe-tF__7ZGK_eSOcVbGPWgfrP1ifYx8IlY4JO4D1MgICmRXA/exec";
+
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: userInfo.name,
+          role: userInfo.role,
+          company: userInfo.company,
+          email: userInfo.email,
+          score: total,
+          level: levelTitle
+        })
+      }).catch(err => console.error("Webhook submission error:", err));
+
+      // Poblado Dashboard
+      document.getElementById('screenScore').innerText = total;
+      const titleEl = document.getElementById('screenLevelTitle');
+      titleEl.innerText = levelTitle;
+      titleEl.className = `text-2xl font-bold mt-1 ${colorClass}`;
+      document.getElementById('screenAnalysis').innerText = summary;
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`barVal${i}`).innerText = `${scores[i]}/25`;
+        document.getElementById(`barFill${i}`).style.width = `${(scores[i] / 25) * 100}%`;
+      }
+
+      // Poblado PDF
+      document.getElementById('pdfName').innerText = userInfo.name;
+      document.getElementById('pdfRole').innerText = userInfo.role;
+      document.getElementById('pdfCompany').innerText = userInfo.company;
+      document.getElementById('pdfDate').innerText = userInfo.date;
+      document.getElementById('pdfScore').innerText = total;
+      document.getElementById('pdfLevelTitle').innerText = levelTitle;
+      document.getElementById('pdfExecutiveSummary').innerText = summary;
+
+      const notes = {
+        1: scores[1] === 25 ? "APIs tipadas con OpenAPI 3.1 e idempotencia garantizada." : (scores[1] === 15 ? "APIs funcionales pero susceptibles a fallos por reintento." : "Riesgo alto: interfaces sin contratos formales."),
+        2: scores[2] === 25 ? "Orquestación determinista robusta gobernada por DAGs." : (scores[2] === 15 ? "Flujos lineales con riesgo de bucles infinitos." : "Riesgo crítico: bucle abierto sin límites de parada."),
+        3: scores[3] === 25 ? "Runtime desacoplado con latencia TTFT sub-segundo." : (scores[3] === 15 ? "Pausas perceptibles durante la llamada a herramientas." : "Latencia inaceptable para canales en tiempo real."),
+        4: scores[4] === 25 ? "Telemetría granular por salto y mitigación de drift activa." : (scores[4] === 15 ? "Métricas generales sin trazabilidad semántica." : "Operación ciega a nivel de contexto y razonamiento.")
+      };
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`pdfP${i}Score`).innerText = `${scores[i]}/25`;
+        document.getElementById(`pdfP${i}Note`).innerText = notes[i];
+      }
+
+      goToStep(6);
+      downloadPDF();
+    }
+
+    function downloadPDF() {
+      const element = document.getElementById('pdfPrintableTemplate');
+      element.classList.remove('hidden');
+
+      const safeCompany = (userInfo.company || 'Enterprise').replace(/[^a-zA-Z0-9]/g, '_');
+      const opt = {
+        margin:       [8, 8, 8, 8],
+        filename:     `AIRI_Report_${safeCompany}_Leyva.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element.children[0]).save().then(() => {
+        element.classList.add('hidden');
+      });
+    }
+
+    function downloadPDFAgain() {
+      downloadPDF();
     }
   </script>
 </body>
