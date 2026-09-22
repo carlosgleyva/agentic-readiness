@@ -41,7 +41,7 @@
         <div class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></div>
         <span class="mono text-xs tracking-wider uppercase text-slate-400">Enterprise Systems Diagnostic</span>
       </div>
-      <a href="../" class="text-xs mono text-slate-400 hover:text-sky-400 transition-colors">
+      <a href="https://carlosgleyva.github.io/portfolio/" class="text-xs mono text-slate-400 hover:text-sky-400 transition-colors">
         Arquitectura & Portfolio →
       </a>
     </div>
@@ -107,8 +107,11 @@
 
       <!-- STEP 2: Control Topology -->
       <div id="step2" class="fade-step hidden">
-        <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 02 // Orquestación</span>
-        <h2 class="text-2xl sm:text-3xl font-bold mt-2 mb-3 text-white">Topología de Control y Máquinas de Estado</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 02 // Orquestación</span>
+          <button type="button" onclick="goToStep(1)" class="text-xs mono text-slate-500 hover:text-slate-300 transition-colors">← Paso anterior</button>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold mb-3 text-white">Topología de Control y Máquinas de Estado</h2>
         <p class="text-sm text-slate-400 mb-8 leading-relaxed">
           En producción corporativa, la autonomía sin restricciones es una vulnerabilidad operativa. ¿Cómo delimitas el espacio de decisión del modelo?
         </p>
@@ -148,8 +151,11 @@
 
       <!-- STEP 3: Latency & UX -->
       <div id="step3" class="fade-step hidden">
-        <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 03 // Runtime & SLA</span>
-        <h2 class="text-2xl sm:text-3xl font-bold mt-2 mb-3 text-white">Presupuesto de Latencia y Experiencia de Usuario</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 03 // Runtime & SLA</span>
+          <button type="button" onclick="goToStep(2)" class="text-xs mono text-slate-500 hover:text-slate-300 transition-colors">← Paso anterior</button>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold mb-3 text-white">Presupuesto de Latencia y Experiencia de Usuario</h2>
         <p class="text-sm text-slate-400 mb-8 leading-relaxed">
           Cada salto agéntico suma inferencia y latencia de red. ¿Cómo interactúa el sistema con los canales de cara al usuario final?
         </p>
@@ -189,8 +195,11 @@
 
       <!-- STEP 4: Observability & Security -->
       <div id="step4" class="fade-step hidden">
-        <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 04 // Gobierno & Telemetría</span>
-        <h2 class="text-2xl sm:text-3xl font-bold mt-2 mb-3 text-white">Observabilidad de Salto, Context Drift y Seguridad</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="mono text-xs font-semibold uppercase text-sky-400 tracking-wider">Dimensión 04 // Gobierno & Telemetría</span>
+          <button type="button" onclick="goToStep(3)" class="text-xs mono text-slate-500 hover:text-slate-300 transition-colors">← Paso anterior</button>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold mb-3 text-white">Observabilidad de Salto, Context Drift y Seguridad</h2>
         <p class="text-sm text-slate-400 mb-8 leading-relaxed">
           En sistemas multi-paso, los errores se acumulan de forma invisible. ¿Cómo auditas y aseguras la cadena de razonamiento?
         </p>
@@ -230,7 +239,7 @@
 
       <!-- STEP 5: Lead Capture Gate -->
       <div id="step5" class="fade-step hidden">
-        <div class="text-center max-w-lg mx-auto mb-8">
+        <div class="text-center max-w-lg mx-auto mb-6">
           <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-400/30 text-sky-400 flex items-center justify-center mx-auto mb-4 mono text-xl font-bold">
             ✓
           </div>
@@ -261,6 +270,9 @@
           <button type="submit" id="btnSubmitForm" class="w-full py-4 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-sky-500/20 mt-2">
             Generar Dictamen & Descargar PDF →
           </button>
+          <div class="text-center pt-2">
+            <button type="button" onclick="goToStep(4)" class="text-xs mono text-slate-500 hover:text-slate-300 transition-colors">← Modificar respuestas previas</button>
+          </div>
         </form>
       </div>
 
@@ -324,10 +336,15 @@
           </div>
 
           <div class="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <button onclick="downloadPDFAgain()" class="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs mono border border-slate-700 flex items-center justify-center gap-2 transition-colors">
-              <span>Descargar Reporte PDF de nuevo</span>
-            </button>
-            <a href="../" class="text-xs mono text-sky-400 hover:underline">
+            <div class="flex flex-wrap gap-3 w-full sm:w-auto">
+              <button onclick="downloadPDFAgain()" class="px-5 py-3 bg-sky-600 hover:bg-sky-500 text-white font-medium rounded-xl text-xs mono transition-colors flex items-center justify-center gap-2">
+                <span>Descargar PDF</span>
+              </button>
+              <button onclick="resetAssessment()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs mono border border-slate-700 transition-colors">
+                <span>Reiniciar Evaluación ↻</span>
+              </button>
+            </div>
+            <a href="https://carlosgleyva.github.io/portfolio/" class="text-xs mono text-sky-400 hover:underline text-center sm:text-right">
               Explorar Portafolio de Sistemas & Arquitectura →
             </a>
           </div>
@@ -434,7 +451,7 @@
 
   <script>
     let currentStep = 1;
-    const scores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    let scores = { 1: 0, 2: 0, 3: 0, 4: 0 };
     let userInfo = {};
 
     function selectOption(step, value, element) {
@@ -458,6 +475,7 @@
       if (nextEl) nextEl.classList.remove('hidden');
 
       if (currentStep <= 4) {
+        document.getElementById('progressContainer').classList.remove('hidden');
         document.getElementById('stepIndicator').innerText = `Pilar ${currentStep} de 4`;
         document.getElementById('percentIndicator').innerText = `${currentStep * 25}% completado`;
         document.getElementById('progressBar').style.width = `${currentStep * 25}%`;
@@ -466,6 +484,18 @@
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetAssessment() {
+      scores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+      document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+      document.getElementById('leadForm').reset();
+      
+      const btn = document.getElementById('btnSubmitForm');
+      btn.innerText = "Generar Dictamen & Descargar PDF →";
+      btn.disabled = false;
+
+      goToStep(1);
     }
 
     function generateFinalReport(e) {
